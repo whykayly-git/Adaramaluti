@@ -5,7 +5,7 @@
       "name": "adaramaluti-dev",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
-      "port": 3000,
+      "port": 4100,
       "autoPort": true
     }
   ]

@@ -22,7 +22,7 @@ cp .env.example .env.local   # then fill in your test/sandbox keys
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:4100](http://localhost:4100).
 
 ## Project Structure
 
