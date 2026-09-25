@@ -8,6 +8,7 @@ import { siteConfig } from "@/lib/site-config";
 
 export function AdminLoginForm() {
   const router = useRouter();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -21,7 +22,7 @@ export function AdminLoginForm() {
       const res = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ email, password }),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -48,10 +49,24 @@ export function AdminLoginForm() {
             className="h-14 w-14 rounded-full object-cover"
           />
           <h1 className="mt-4 font-bold text-xl text-primary">Admin Sign In</h1>
-          <p className="mt-1 text-sm text-gray-500">Bespoke & contact submissions</p>
+          <p className="mt-1 text-sm text-gray-500">Manage orders, shop, collections & lookbook</p>
         </div>
 
         <form onSubmit={onSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700">
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              autoFocus
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="input"
+            />
+          </div>
           <div>
             <label htmlFor="password" className="mb-1 block text-sm font-medium text-gray-700">
               Password
@@ -59,7 +74,6 @@ export function AdminLoginForm() {
             <input
               id="password"
               type="password"
-              autoFocus
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}

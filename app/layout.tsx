@@ -8,6 +8,7 @@ import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 import { LoadingScreen } from "@/components/layout/LoadingScreen";
 import { CurrencyInitializer } from "@/components/layout/CurrencyInitializer";
 import { siteConfig } from "@/lib/site-config";
+import { getAllProducts } from "@/data/products";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -39,12 +40,14 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
+  const products = getAllProducts();
+
   return (
     <html lang="en" className={`${poppins.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <LoadingScreen />
         <CurrencyInitializer />
-        <Navbar />
+        <Navbar products={products} />
         <main className="flex-1">{children}</main>
         <Footer />
         <CartDrawer />

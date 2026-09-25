@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/lib/site-config";
-import { products } from "@/data/products";
-import { collections } from "@/data/collections";
+import { getAllProducts } from "@/data/products";
+import { getAllCollections } from "@/data/collections";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes = [
@@ -20,12 +20,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: new Date(),
   }));
 
-  const productRoutes = products.map((p) => ({
+  const productRoutes = getAllProducts().map((p) => ({
     url: `${siteConfig.url}/shop/${p.slug}`,
     lastModified: new Date(p.createdAt),
   }));
 
-  const collectionRoutes = collections.map((c) => ({
+  const collectionRoutes = getAllCollections().map((c) => ({
     url: `${siteConfig.url}/collections/${c.slug}`,
     lastModified: new Date(),
   }));

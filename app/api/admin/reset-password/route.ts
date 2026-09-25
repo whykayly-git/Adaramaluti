@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { resetAdminPassword } from "@/lib/admin-password";
+import { resetAdminPasswordByEmail } from "@/lib/admin-password";
 
 export async function POST(request: NextRequest) {
-  const { recoveryCode, newPassword } = await request.json();
+  const { email, recoveryCode, newPassword } = await request.json();
 
   const expectedCode = process.env.ADMIN_RECOVERY_CODE;
   if (!expectedCode) {
@@ -14,6 +14,10 @@ export async function POST(request: NextRequest) {
       },
       { status: 500 }
     );
+  }
+
+  if (typeof email !== "string" || !email.includes("@")) {
+    return NextResponse.json({ error: "Enter a valid email address" }, { status: 400 });
   }
 
   if (typeof recoveryCode !== "string" || recoveryCode !== expectedCode) {
@@ -27,7 +31,10 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  resetAdminPassword(newPassword);
+  const updated = resetAdminPasswordByEmail(email, newPassword);
+  if (!updated) {
+    return NextResponse.json({ error: "No admin account found for that email" }, { status: 404 });
+  }
 
   return NextResponse.json({ ok: true });
 }

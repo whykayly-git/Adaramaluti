@@ -6,7 +6,7 @@ import { ProductCard } from "@/components/shop/ProductCard";
 import { ShopFilters } from "@/components/shop/ShopFilters";
 import { SortSelect } from "@/components/shop/SortSelect";
 import { Pagination } from "@/components/shop/Pagination";
-import { products } from "@/data/products";
+import { getAllProducts } from "@/data/products";
 import type { Product } from "@/types";
 
 export const metadata: Metadata = {
@@ -21,7 +21,7 @@ function effectivePrice(p: Product) {
 }
 
 function filterAndSort(searchParams: Record<string, string | undefined>): Product[] {
-  let list = [...products];
+  let list = getAllProducts();
 
   const { category, size, color, price, q, sort } = searchParams;
 

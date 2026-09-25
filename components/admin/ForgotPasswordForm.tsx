@@ -7,6 +7,7 @@ import { CheckCircle2 } from "lucide-react";
 import { siteConfig } from "@/lib/site-config";
 
 export function ForgotPasswordForm() {
+  const [email, setEmail] = useState("");
   const [recoveryCode, setRecoveryCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -32,7 +33,7 @@ export function ForgotPasswordForm() {
       const res = await fetch("/api/admin/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ recoveryCode, newPassword }),
+        body: JSON.stringify({ email, recoveryCode, newPassword }),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -78,6 +79,19 @@ export function ForgotPasswordForm() {
           </div>
         ) : (
           <form onSubmit={onSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="input"
+              />
+            </div>
             <div>
               <label htmlFor="recoveryCode" className="mb-1 block text-sm font-medium text-gray-700">
                 Recovery Code

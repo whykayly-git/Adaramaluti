@@ -9,8 +9,8 @@ export async function proxy(request: NextRequest) {
 
   if (pathname.startsWith("/admin") && !PUBLIC_ADMIN_PATHS.includes(pathname)) {
     const sessionCookie = request.cookies.get(ADMIN_COOKIE_NAME)?.value;
-    const isValid = await verifySessionCookieValue(sessionCookie);
-    if (!isValid) {
+    const session = await verifySessionCookieValue(sessionCookie);
+    if (!session) {
       return NextResponse.redirect(new URL("/admin/login", request.url));
     }
   }

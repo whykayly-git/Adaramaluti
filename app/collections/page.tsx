@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { collections } from "@/data/collections";
+import { getAllCollections } from "@/data/collections";
 
 export const metadata: Metadata = {
   title: "Collections",
@@ -11,6 +11,8 @@ export const metadata: Metadata = {
 };
 
 export default function CollectionsPage() {
+  const collections = getAllCollections();
+
   return (
     <div className="py-12 sm:py-16">
       <Container>

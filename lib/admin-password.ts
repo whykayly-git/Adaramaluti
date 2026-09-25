@@ -1,12 +1,10 @@
 import { randomBytes, scryptSync, timingSafeEqual } from "crypto";
-import { getSetting, setSetting } from "@/lib/db";
+import { countAdmins, getAdminByEmail, insertAdmin, updateAdminPasswordHash } from "@/lib/db";
 
 /**
  * Node-only (uses Node's `crypto`, not Web Crypto) — only import this from
  * API routes, never from proxy.ts, which runs on the Edge runtime.
  */
-
-const PASSWORD_HASH_KEY = "admin_password_hash";
 
 function hashPassword(password: string): string {
   const salt = randomBytes(16).toString("hex");
@@ -25,20 +23,53 @@ function verifyHash(password: string, stored: string): boolean {
   return timingSafeEqual(hash, storedHash);
 }
 
-/**
- * Checks the DB-stored password hash first (set via a password reset); if
- * none has been set yet, falls back to the ADMIN_PASSWORD env var.
- */
-export function verifyAdminPassword(password: string): boolean {
-  const stored = getSetting(PASSWORD_HASH_KEY);
-  if (stored) {
-    return verifyHash(password, stored);
-  }
-
-  const envPassword = process.env.ADMIN_PASSWORD;
-  return typeof envPassword === "string" && envPassword.length > 0 && password === envPassword;
+function isBootstrapMatch(email: string, password: string): boolean {
+  const bootstrapEmail = process.env.ADMIN_EMAIL;
+  const bootstrapPassword = process.env.ADMIN_PASSWORD;
+  if (!bootstrapEmail || !bootstrapPassword) return false;
+  return email.toLowerCase() === bootstrapEmail.toLowerCase() && password === bootstrapPassword;
 }
 
-export function resetAdminPassword(newPassword: string): void {
-  setSetting(PASSWORD_HASH_KEY, hashPassword(newPassword));
+/**
+ * Verifies email+password against the admins table. If no admin accounts
+ * exist yet, falls back to the ADMIN_EMAIL / ADMIN_PASSWORD env vars and
+ * creates that first account on success — this is how you get in the very
+ * first time, before you can invite anyone from inside the dashboard.
+ */
+export function verifyAdminCredentials(email: string, password: string): boolean {
+  const existing = getAdminByEmail(email);
+  if (existing) {
+    return verifyHash(password, existing.passwordHash);
+  }
+
+  if (countAdmins() === 0 && isBootstrapMatch(email, password)) {
+    insertAdmin(email, hashPassword(password));
+    return true;
+  }
+
+  return false;
+}
+
+export function createAdmin(email: string, password: string): void {
+  insertAdmin(email, hashPassword(password));
+}
+
+/**
+ * Resets a given admin's password using the recovery code flow. If that
+ * email doesn't have an account yet but matches the bootstrap email (and no
+ * admins exist), this creates the account instead.
+ */
+export function resetAdminPasswordByEmail(email: string, newPassword: string): boolean {
+  const existing = getAdminByEmail(email);
+  if (existing) {
+    updateAdminPasswordHash(email, hashPassword(newPassword));
+    return true;
+  }
+
+  if (countAdmins() === 0 && email.toLowerCase() === (process.env.ADMIN_EMAIL ?? "").toLowerCase()) {
+    insertAdmin(email, hashPassword(newPassword));
+    return true;
+  }
+
+  return false;
 }

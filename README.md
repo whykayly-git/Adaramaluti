@@ -33,8 +33,8 @@ components/
   ui/                  Generic building blocks (Button, Logo, Container, ...)
   layout/              Navbar, Footer, CartDrawer, WhatsAppButton, ...
   home/, shop/, checkout/, bespoke/, contact/, legal/
-data/                  Local product & collection data (swap for a CMS/DB later)
-lib/                   site-config, currency, shipping, payments/, validation/
+data/                  Product/collection/lookbook accessors (DB-backed, see lib/db.ts) + seed-*.ts
+lib/                   site-config, currency, shipping, payments/, validation/, db.ts, admin-*.ts
 store/                 Zustand stores (cart, wishlist, currency)
 types/                 Shared TypeScript types
 ```
@@ -109,28 +109,49 @@ Replace the `sk_test_...` / `FLWSECK_TEST-...` keys in your environment with the
 equivalents (`sk_live_...` / `FLWSECK-...`), and create a live-mode Stripe webhook endpoint. No
 code changes are required.
 
-## Admin Dashboard (bespoke & contact submissions)
+## Admin Dashboard
 
-Bespoke and contact form submissions are stored in a local SQLite database (via Node's built-in
-`node:sqlite`, see [`lib/db.ts`](lib/db.ts)) and viewable at **`/admin`**, protected by a
-password-gated session (see [`lib/admin-auth.ts`](lib/admin-auth.ts) and `proxy.ts`).
+Everything below lives in a local SQLite database (via Node's built-in `node:sqlite`, see
+[`lib/db.ts`](lib/db.ts)), editable at **`/admin`**, protected by a signed, password-gated session
+(see [`lib/admin-auth.ts`](lib/admin-auth.ts) and `proxy.ts`):
 
-1. Set `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET` and `ADMIN_RECOVERY_CODE` in `.env.local` (see
-   `.env.example`; generate the secrets with `openssl rand -hex 32`).
-2. Visit `/admin` — you'll be redirected to `/admin/login` if not signed in.
-3. Submissions appear newest-first, split into Bespoke Requests and Contact Messages.
+- **`/admin`** — Submissions: bespoke requests and contact messages, newest first.
+- **`/admin/products`** — full product management: add, edit, delete, prices, sizes, colors,
+  images (by URL), stock and featured status. Changes are live on `/shop` immediately.
+- **`/admin/collections`** — add, edit, delete collections shown on `/collections` and the home page.
+- **`/admin/lookbook`** — add or remove images from the `/lookbook` gallery.
+- **`/admin/admins`** — manage who has dashboard access (see below).
 
-**Forgot the password?** There's no email service wired up, so recovery works via the
-`ADMIN_RECOVERY_CODE` env var instead: go to `/admin/login` → *Forgot password?*, enter the
-recovery code plus a new password. This calls `/api/admin/reset-password`, which stores a salted
-scrypt hash of the new password in the database (see `lib/admin-password.ts`) — from then on,
-login checks against that hash instead of the `ADMIN_PASSWORD` env var. Keep the recovery code as
-secret as the password itself; anyone with it can take over the admin login.
+The product/collection/lookbook data that used to live in static files now lives in the database,
+seeded once on first run from `data/seed-products.ts`, `data/seed-collections.ts` and
+`data/seed-lookbook.ts`. `data/products.ts`, `data/collections.ts` and `data/lookbook.ts` are thin,
+DB-backed accessor functions — the rest of the app (shop, product pages, home, sitemap, etc.)
+reads through those and never touches `lib/db.ts` directly.
 
-**Note on hosting**: the SQLite file lives at `.data/app.db` on disk. This works well on a host
-with a persistent filesystem, but resets on every deploy on an ephemeral/serverless host (e.g.
-Vercel) and isn't shared across server instances. Swap `lib/db.ts` for a hosted database (Turso,
-Supabase, Postgres) before relying on this in that kind of production deployment.
+### Admin accounts
+
+There's no sign-up page — accounts are invite-only, created from inside the dashboard
+(`/admin/admins`) by an existing admin. That has a bootstrapping problem for the very first login,
+solved like this: set `ADMIN_EMAIL` and `ADMIN_PASSWORD` in `.env.local` (see `.env.example`). The
+first successful login with those exact credentials creates that admin account for real, in the
+database — after that, invite further admins from `/admin/admins` instead of relying on the env
+vars again. An admin can't remove their own account or the last remaining admin, so there's always
+at least one way in.
+
+**Forgot a password?** There's no email service wired up, so recovery uses a separate
+`ADMIN_RECOVERY_CODE` secret instead of an emailed link: `/admin/login` → *Forgot password?* →
+enter the admin's email, the recovery code, and a new password. This calls
+`/api/admin/reset-password`, which stores a salted scrypt hash in the database (see
+`lib/admin-password.ts`). Keep the recovery code as secret as a password — anyone with it can
+reset any admin's login.
+
+### Note on hosting
+
+The SQLite file lives at `.data/app.db` on disk. This works well on a host with a persistent
+filesystem, but resets on every deploy on an ephemeral/serverless host (e.g. Vercel) and isn't
+shared across server instances. Swap `lib/db.ts` for a hosted database (Turso, Supabase, Postgres)
+before relying on this — submissions, admin accounts, products and collections — in that kind of
+production deployment.
 
 ## Shipping
 

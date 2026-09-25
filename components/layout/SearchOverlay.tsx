@@ -5,9 +5,17 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Search, X } from "lucide-react";
-import { products } from "@/data/products";
+import type { Product } from "@/types";
 
-export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function SearchOverlay({
+  open,
+  onClose,
+  products,
+}: {
+  open: boolean;
+  onClose: () => void;
+  products: Product[];
+}) {
   const [query, setQuery] = useState("");
   const router = useRouter();
 
@@ -37,7 +45,7 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
           p.collection.toLowerCase().includes(q)
       )
       .slice(0, 6);
-  }, [query]);
+  }, [query, products]);
 
   if (!open) return null;
 

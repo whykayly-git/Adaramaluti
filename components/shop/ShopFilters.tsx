@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useState } from "react";
 import { SlidersHorizontal, X } from "lucide-react";
-import { categories } from "@/data/products";
+import { categories } from "@/lib/categories";
 import { cn } from "@/lib/utils";
 
 const SIZES = ["XS", "S", "M", "L", "XL", "One Size"];

@@ -3,15 +3,15 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { ProductCard } from "@/components/shop/ProductCard";
-import { collections, getCollectionBySlug } from "@/data/collections";
-import { products } from "@/data/products";
+import { getAllCollections, getCollectionBySlug } from "@/data/collections";
+import { getAllProducts } from "@/data/products";
 
 interface CollectionPageProps {
   params: Promise<{ slug: string }>;
 }
 
 export function generateStaticParams() {
-  return collections.map((c) => ({ slug: c.slug }));
+  return getAllCollections().map((c) => ({ slug: c.slug }));
 }
 
 export async function generateMetadata({ params }: CollectionPageProps): Promise<Metadata> {
@@ -26,7 +26,7 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
   const collection = getCollectionBySlug(slug);
   if (!collection) notFound();
 
-  const collectionProducts = products.filter((p) => p.collection === collection.name);
+  const collectionProducts = getAllProducts().filter((p) => p.collection === collection.name);
 
   return (
     <div>

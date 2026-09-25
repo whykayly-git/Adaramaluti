@@ -1,16 +1,20 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { ADMIN_COOKIE_NAME, createSessionCookieValue } from "@/lib/admin-auth";
-import { verifyAdminPassword } from "@/lib/admin-password";
+import { verifyAdminCredentials } from "@/lib/admin-password";
 
 export async function POST(request: NextRequest) {
-  const { password } = await request.json();
+  const { email, password } = await request.json();
 
-  if (typeof password !== "string" || !verifyAdminPassword(password)) {
-    return NextResponse.json({ error: "Incorrect password" }, { status: 401 });
+  if (typeof email !== "string" || typeof password !== "string") {
+    return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
   }
 
-  const value = await createSessionCookieValue();
+  if (!verifyAdminCredentials(email, password)) {
+    return NextResponse.json({ error: "Incorrect email or password" }, { status: 401 });
+  }
+
+  const value = await createSessionCookieValue(email.toLowerCase());
   const response = NextResponse.json({ ok: true });
   response.cookies.set(ADMIN_COOKIE_NAME, value, {
     httpOnly: true,

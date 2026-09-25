@@ -2,10 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { collections } from "@/data/collections";
+import { getAllCollections } from "@/data/collections";
 
 export function FeaturedCollections() {
-  const featured = collections.slice(0, 3);
+  const featured = getAllCollections().slice(0, 3);
 
   return (
     <section className="py-16 sm:py-24">
