@@ -12,13 +12,12 @@ import { PaymentBadge } from "@/components/checkout/PaymentBadge";
 import { useCartStore } from "@/store/cart-store";
 import { useCurrencyStore } from "@/store/currency-store";
 import { checkoutSchema, type CheckoutFormValues } from "@/lib/validation/checkout";
-import { shippingOptions } from "@/lib/shipping";
 import { convertFromNGN, formatPrice } from "@/lib/currency";
 import { generateOrderReference, savePendingOrder } from "@/lib/order";
 import { cn } from "@/lib/utils";
-import type { PaymentProvider } from "@/types";
+import type { PaymentProvider, ShippingOption } from "@/types";
 
-export function CheckoutClient() {
+export function CheckoutClient({ shippingOptions }: { shippingOptions: ShippingOption[] }) {
   const items = useCartStore((s) => s.items);
   const subtotalNGN = useCartStore((s) => s.subtotalNGN());
   const currency = useCurrencyStore((s) => s.currency);

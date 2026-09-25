@@ -8,11 +8,11 @@ import { Button } from "@/components/ui/Button";
 import { OrderReceipt } from "@/components/checkout/OrderReceipt";
 import { getPendingOrder } from "@/lib/order";
 import { useCartStore } from "@/store/cart-store";
-import type { OrderDetails } from "@/types";
+import type { OrderDetails, ShippingOption } from "@/types";
 
 type Status = "verifying" | "success" | "failed";
 
-export function OrderConfirmationClient() {
+export function OrderConfirmationClient({ shippingOptions }: { shippingOptions: ShippingOption[] }) {
   const searchParams = useSearchParams();
   const clearCart = useCartStore((s) => s.clear);
   const [status, setStatus] = useState<Status>("verifying");
@@ -110,7 +110,7 @@ export function OrderConfirmationClient() {
                 Your order has been confirmed. A receipt has been sent to {order.customer.email}.
               </p>
             </div>
-            <OrderReceipt order={order} />
+            <OrderReceipt order={order} shippingOptions={shippingOptions} />
             <div className="mt-8 flex justify-center gap-3">
               <Button href="/shop" variant="outline">
                 Continue Shopping

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { OrderConfirmationClient } from "@/components/checkout/OrderConfirmationClient";
+import { getShippingOptions } from "@/lib/shipping";
 
 export const metadata: Metadata = {
   title: "Order Confirmation",
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
 export default function OrderConfirmationPage() {
   return (
     <Suspense>
-      <OrderConfirmationClient />
+      <OrderConfirmationClient shippingOptions={getShippingOptions()} />
     </Suspense>
   );
 }

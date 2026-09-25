@@ -123,7 +123,9 @@ Everything below lives in a local SQLite database (via Node's built-in `node:sql
 - **`/admin/collections`** — add, edit, delete collections shown on `/collections` and the home page.
 - **`/admin/lookbook`** — add or remove images from the `/lookbook` gallery.
 - **`/admin/settings`** — brand details (name, tagline, logo, email, phone, WhatsApp, address,
-  social links — shown in the navbar, footer, home hero, receipts, metadata, etc.), plus the
+  social links — shown in the navbar, footer, home hero, receipts, metadata, etc.), checkout
+  shipping rates (label/description/rate/ETA for the three zones — the zone ids themselves are
+  fixed, since they're a literal type used by the checkout form and order records), and the
   Shipping & Returns, Privacy Policy, Terms of Service and Contact page content.
 - **`/admin/admins`** — manage who has dashboard access (see below).
 

@@ -31,3 +31,13 @@ export const pageContentSchema = z.object({
   key: z.enum(["shipping_returns", "privacy_policy", "terms", "contact_intro"]),
   content: z.string().min(1, "Content can't be empty"),
 });
+
+export const shippingOptionsSchema = z.array(
+  z.object({
+    id: z.enum(["lagos", "other-states", "international"]),
+    label: z.string().min(1, "Label is required"),
+    description: z.string().min(1, "Description is required"),
+    rateNGN: z.number().nonnegative("Rate must be 0 or greater"),
+    etaDays: z.string().min(1, "Delivery estimate is required"),
+  })
+).length(3, "All three shipping zones are required");

@@ -1,11 +1,17 @@
 import Image from "next/image";
 import { Price } from "@/components/ui/Price";
 import { siteConfig } from "@/lib/site-config";
-import { getShippingOption } from "@/lib/shipping";
-import type { OrderDetails } from "@/types";
+import type { OrderDetails, ShippingOption } from "@/types";
 
-export function OrderReceipt({ order }: { order: OrderDetails }) {
-  const shipping = getShippingOption(order.shippingZone);
+export function OrderReceipt({
+  order,
+  shippingOptions,
+}: {
+  order: OrderDetails;
+  shippingOptions: ShippingOption[];
+}) {
+  const shipping =
+    shippingOptions.find((o) => o.id === order.shippingZone) ?? shippingOptions[0];
 
   return (
     <div className="mx-auto max-w-2xl rounded-2xl border border-gray-100 bg-white p-8 shadow-sm print:shadow-none">
