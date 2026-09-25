@@ -32,7 +32,7 @@ export default function AboutPage() {
               Crafted with Purpose, Worn with Pride
             </h1>
             <p className="mt-5 text-gray-600">
-              Adaramaluti House of Fashion was founded in Lagos with a singular belief: that
+              Adaramaluti House of Fashion was founded in Ogun State with a singular belief: that
               clothing should tell a story. What began as a small tailoring studio has grown into
               a respected atelier, dressing clients across Nigeria, the UK, the US and beyond for
               weddings, ceremonies, galas and everyday elegance.
@@ -59,7 +59,7 @@ export default function AboutPage() {
             <h3 className="font-bold text-xl text-primary">Craftsmanship</h3>
             <p className="mt-2 text-sm text-gray-600">
               Every garment is cut, sewn and finished by hand by master tailors and embroiderers
-              in our Victoria Island atelier.
+              in our Ogun State atelier.
             </p>
           </div>
           <div>

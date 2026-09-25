@@ -24,7 +24,7 @@ export function AboutTeaser() {
             Rooted in Lagos, worn around the world
           </h2>
           <p className="mt-4 text-gray-600">
-            Every Adaramaluti piece begins in our Victoria Island atelier, where a small team of
+            Every Adaramaluti piece begins in our Ogun State atelier, where a small team of
             master tailors and embroiderers bring each design to life by hand. We blend
             traditional Nigerian craftsmanship with contemporary silhouettes for the modern,
             elegant individual.
