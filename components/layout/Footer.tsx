@@ -7,11 +7,12 @@ import { MapPin, Mail, Phone } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { SocialIcon } from "@/components/ui/SocialIcon";
 import { Container } from "@/components/ui/Container";
-import { footerLinks, siteConfig } from "@/lib/site-config";
+import { footerLinks } from "@/lib/site-config";
+import type { SiteSettings } from "@/lib/site-settings";
 
 const paymentLogos = ["Visa", "Mastercard", "Verve", "Paystack", "Stripe", "Flutterwave"];
 
-export function Footer() {
+export function Footer({ settings }: { settings: SiteSettings }) {
   const pathname = usePathname();
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -31,12 +32,19 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-5">
           <div className="lg:col-span-2">
             <div className="inline-flex rounded-2xl bg-white p-4">
-              <Logo size={56} href="/" withWordmark={false} />
+              <Logo
+                size={56}
+                href="/"
+                withWordmark={false}
+                src={settings.logo}
+                name={settings.name}
+                shortName={settings.shortName}
+              />
             </div>
-            <p className="mt-4 max-w-xs text-sm text-white/70">{siteConfig.description}</p>
+            <p className="mt-4 max-w-xs text-sm text-white/70">{settings.description}</p>
             <div className="mt-5 flex items-center gap-3">
               <a
-                href={siteConfig.social.instagram}
+                href={settings.social.instagram}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
@@ -45,7 +53,7 @@ export function Footer() {
                 <SocialIcon name="instagram" />
               </a>
               <a
-                href={siteConfig.social.facebook}
+                href={settings.social.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook"
@@ -54,7 +62,7 @@ export function Footer() {
                 <SocialIcon name="facebook" />
               </a>
               <a
-                href={siteConfig.social.twitter}
+                href={settings.social.twitter}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Twitter"
@@ -93,14 +101,14 @@ export function Footer() {
             </ul>
             <ul className="mt-4 space-y-2 text-sm text-white/70">
               <li className="flex items-center gap-2">
-                <Mail className="h-4 w-4" /> {siteConfig.email}
+                <Mail className="h-4 w-4" /> {settings.email}
               </li>
               <li className="flex items-center gap-2">
-                <Phone className="h-4 w-4" /> {siteConfig.phone}
+                <Phone className="h-4 w-4" /> {settings.phone}
               </li>
               <li className="flex items-start gap-2">
                 <MapPin className="mt-0.5 h-4 w-4 shrink-0" />
-                {siteConfig.address.line1}, {siteConfig.address.line2}, {siteConfig.address.city}
+                {settings.address.line1}, {settings.address.line2}, {settings.address.city}
               </li>
             </ul>
           </div>
@@ -140,7 +148,7 @@ export function Footer() {
 
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 sm:flex-row">
           <p className="text-xs text-white/60">
-            © {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
+            © {new Date().getFullYear()} {settings.name}. All rights reserved.
           </p>
           <ul className="flex flex-wrap items-center gap-3">
             {paymentLogos.map((name) => (

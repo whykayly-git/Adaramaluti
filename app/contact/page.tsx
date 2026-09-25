@@ -3,24 +3,26 @@ import { Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ContactForm } from "@/components/contact/ContactForm";
-import { siteConfig } from "@/lib/site-config";
+import { getSiteSettings } from "@/lib/site-settings";
+import { getPageContent } from "@/lib/page-content";
 
-export const metadata: Metadata = {
-  title: "Contact",
-  description: `Get in touch with ${siteConfig.name}.`,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = getSiteSettings();
+  return {
+    title: "Contact",
+    description: `Get in touch with ${settings.name}.`,
+  };
+}
 
 export default function ContactPage() {
-  const message = encodeURIComponent("Hello Adaramaluti House of Fashion, I'd like to make an enquiry.");
+  const settings = getSiteSettings();
+  const intro = getPageContent("contact_intro");
+  const message = encodeURIComponent(`Hello ${settings.name}, I'd like to make an enquiry.`);
 
   return (
     <div className="py-12 sm:py-16">
       <Container>
-        <SectionHeading
-          eyebrow="Get in Touch"
-          title="Contact Us"
-          description="Questions about an order, bespoke piece or collaboration? We'd love to hear from you."
-        />
+        <SectionHeading eyebrow="Get in Touch" title="Contact Us" description={intro} />
 
         <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-[1fr_1fr]">
           <ContactForm />
@@ -32,14 +34,14 @@ export default function ContactPage() {
                   <Mail className="mt-0.5 h-5 w-5 text-accent" />
                   <div>
                     <p className="font-semibold text-primary">Email</p>
-                    <p className="text-gray-600">{siteConfig.email}</p>
+                    <p className="text-gray-600">{settings.email}</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
                   <Phone className="mt-0.5 h-5 w-5 text-accent" />
                   <div>
                     <p className="font-semibold text-primary">Phone</p>
-                    <p className="text-gray-600">{siteConfig.phone}</p>
+                    <p className="text-gray-600">{settings.phone}</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
@@ -47,15 +49,15 @@ export default function ContactPage() {
                   <div>
                     <p className="font-semibold text-primary">Atelier</p>
                     <p className="text-gray-600">
-                      {siteConfig.address.line1}, {siteConfig.address.line2},{" "}
-                      {siteConfig.address.city}, {siteConfig.address.country}
+                      {settings.address.line1}, {settings.address.line2},{" "}
+                      {settings.address.city}, {settings.address.country}
                     </p>
                   </div>
                 </li>
               </ul>
 
               <a
-                href={`https://wa.me/${siteConfig.whatsapp}?text=${message}`}
+                href={`https://wa.me/${settings.whatsapp}?text=${message}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-6 flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-6 py-3 text-sm font-semibold text-white hover:opacity-90"
@@ -65,7 +67,7 @@ export default function ContactPage() {
             </div>
 
             <div className="flex h-56 items-center justify-center rounded-2xl bg-light text-sm text-gray-500">
-              Map placeholder — {siteConfig.address.city}, {siteConfig.address.country}
+              Map placeholder — {settings.address.city}, {settings.address.country}
             </div>
           </div>
         </div>

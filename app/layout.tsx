@@ -7,7 +7,7 @@ import { CartDrawer } from "@/components/layout/CartDrawer";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 import { LoadingScreen } from "@/components/layout/LoadingScreen";
 import { CurrencyInitializer } from "@/components/layout/CurrencyInitializer";
-import { siteConfig } from "@/lib/site-config";
+import { getSiteSettings } from "@/lib/site-settings";
 import { getAllProducts } from "@/data/products";
 
 const poppins = Poppins({
@@ -16,42 +16,47 @@ const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL(siteConfig.url),
-  title: {
-    default: `${siteConfig.name} | ${siteConfig.tagline}`,
-    template: `%s | ${siteConfig.shortName}`,
-  },
-  description: siteConfig.description,
-  openGraph: {
-    title: siteConfig.name,
-    description: siteConfig.description,
-    url: siteConfig.url,
-    siteName: siteConfig.name,
-    images: ["/opengraph-image"],
-    locale: "en_NG",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: siteConfig.name,
-    description: siteConfig.description,
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = getSiteSettings();
+
+  return {
+    metadataBase: new URL(settings.url),
+    title: {
+      default: `${settings.name} | ${settings.tagline}`,
+      template: `%s | ${settings.shortName}`,
+    },
+    description: settings.description,
+    openGraph: {
+      title: settings.name,
+      description: settings.description,
+      url: settings.url,
+      siteName: settings.name,
+      images: ["/opengraph-image"],
+      locale: "en_NG",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: settings.name,
+      description: settings.description,
+    },
+  };
+}
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   const products = getAllProducts();
+  const settings = getSiteSettings();
 
   return (
     <html lang="en" className={`${poppins.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
-        <LoadingScreen />
+        <LoadingScreen settings={settings} />
         <CurrencyInitializer />
-        <Navbar products={products} />
+        <Navbar products={products} settings={settings} />
         <main className="flex-1">{children}</main>
-        <Footer />
+        <Footer settings={settings} />
         <CartDrawer />
-        <WhatsAppButton />
+        <WhatsAppButton settings={settings} />
       </body>
     </html>
   );

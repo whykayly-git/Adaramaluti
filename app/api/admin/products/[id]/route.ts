@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import { requireAdminSession } from "@/lib/require-admin";
 import { productSchema } from "@/lib/validation/product";
 import { deleteProduct, getProductBySlugFromDb, updateProduct } from "@/lib/db";
@@ -25,6 +26,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   }
 
   updateProduct(id, { ...parsed.data, salePriceNGN: parsed.data.salePriceNGN ?? undefined });
+  revalidatePath("/", "layout");
 
   return NextResponse.json({ ok: true });
 }
@@ -35,6 +37,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
   const { id } = await params;
   deleteProduct(id);
+  revalidatePath("/", "layout");
 
   return NextResponse.json({ ok: true });
 }

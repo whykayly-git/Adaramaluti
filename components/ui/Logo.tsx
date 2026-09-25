@@ -9,6 +9,10 @@ interface LogoProps {
   size?: number;
   href?: string | null;
   withWordmark?: boolean;
+  /** Overrides for admin-edited brand settings; falls back to the static defaults when omitted. */
+  src?: string;
+  name?: string;
+  shortName?: string;
 }
 
 export function Logo({
@@ -17,6 +21,9 @@ export function Logo({
   size = 48,
   href = "/",
   withWordmark = false,
+  src = siteConfig.logo,
+  name = siteConfig.name,
+  shortName = siteConfig.shortName,
 }: LogoProps) {
   const content = (
     <div className={cn("flex items-center gap-3", className)}>
@@ -28,8 +35,8 @@ export function Logo({
         style={{ width: size, height: size }}
       >
         <Image
-          src={siteConfig.logo}
-          alt="Adaramaluti House of Fashion logo"
+          src={src}
+          alt={`${name} logo`}
           width={size * 2}
           height={size * 2}
           className="h-full w-full object-cover"
@@ -38,9 +45,7 @@ export function Logo({
       </span>
       {withWordmark && (
         <span className="hidden flex-col leading-tight sm:flex">
-          <span className="font-bold text-primary text-base tracking-tight">
-            {siteConfig.shortName}
-          </span>
+          <span className="font-bold text-primary text-base tracking-tight">{shortName}</span>
           <span className="text-[11px] uppercase tracking-widest text-gray-500">
             House of Fashion
           </span>
@@ -52,7 +57,7 @@ export function Logo({
   if (!href) return content;
 
   return (
-    <Link href={href} aria-label={`${siteConfig.name} home`}>
+    <Link href={href} aria-label={`${name} home`}>
       {content}
     </Link>
   );

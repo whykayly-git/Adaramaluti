@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import { requireAdminSession } from "@/lib/require-admin";
 import { collectionSchema } from "@/lib/validation/collection";
 import { deleteCollection, getCollectionBySlugFromDb, updateCollection } from "@/lib/db";
@@ -26,6 +27,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   }
 
   updateCollection(collectionId, parsed.data);
+  revalidatePath("/", "layout");
 
   return NextResponse.json({ ok: true });
 }
@@ -36,6 +38,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
   const { id } = await params;
   deleteCollection(Number(id));
+  revalidatePath("/", "layout");
 
   return NextResponse.json({ ok: true });
 }

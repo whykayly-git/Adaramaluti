@@ -1,14 +1,16 @@
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
-import { siteConfig } from "@/lib/site-config";
+import { getSiteSettings } from "@/lib/site-settings";
 
 export default function NotFound() {
+  const settings = getSiteSettings();
+
   return (
     <Container className="flex min-h-[70vh] flex-col items-center justify-center py-20 text-center">
       <Image
-        src={siteConfig.logo}
-        alt="Adaramaluti House of Fashion logo"
+        src={settings.logo}
+        alt={`${settings.name} logo`}
         width={72}
         height={72}
         className="h-18 w-18 rounded-full object-cover shadow-lg"

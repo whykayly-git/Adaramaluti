@@ -2,15 +2,20 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { siteConfig } from "@/lib/site-config";
+import { getSiteSettings } from "@/lib/site-settings";
 import { unsplash } from "@/lib/unsplash";
 
-export const metadata: Metadata = {
-  title: "About",
-  description: `The story, philosophy and craftsmanship behind ${siteConfig.name}.`,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = getSiteSettings();
+  return {
+    title: "About",
+    description: `The story, philosophy and craftsmanship behind ${settings.name}.`,
+  };
+}
 
 export default function AboutPage() {
+  const settings = getSiteSettings();
+
   return (
     <div className="py-12 sm:py-16">
       <Container>
@@ -18,8 +23,8 @@ export default function AboutPage() {
           <div>
             <div className="mb-6 inline-flex items-center gap-3 rounded-full bg-light px-4 py-2">
               <Image
-                src={siteConfig.logo}
-                alt="Adaramaluti House of Fashion logo"
+                src={settings.logo}
+                alt={`${settings.name} logo`}
                 width={40}
                 height={40}
                 className="h-10 w-10 rounded-full object-cover"

@@ -1,19 +1,17 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { siteConfig } from "@/lib/site-config";
+import type { SiteSettings } from "@/lib/site-settings";
 
-export function WhatsAppButton() {
+export function WhatsAppButton({ settings }: { settings: SiteSettings }) {
   const pathname = usePathname();
-  const message = encodeURIComponent(
-    "Hello Adaramaluti House of Fashion, I'd like to make an enquiry."
-  );
+  const message = encodeURIComponent(`Hello ${settings.name}, I'd like to make an enquiry.`);
 
   if (pathname.startsWith("/admin")) return null;
 
   return (
     <a
-      href={`https://wa.me/${siteConfig.whatsapp}?text=${message}`}
+      href={`https://wa.me/${settings.whatsapp}?text=${message}`}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat with us on WhatsApp"

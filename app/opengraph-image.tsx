@@ -1,12 +1,13 @@
 import { ImageResponse } from "next/og";
 import { readFileSync } from "fs";
 import path from "path";
-import { siteConfig } from "@/lib/site-config";
+import { getSiteSettings } from "@/lib/site-settings";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 export default function OpengraphImage() {
+  const settings = getSiteSettings();
   const logoBuffer = readFileSync(path.join(process.cwd(), "public/images/logo.png"));
   const logoBase64 = `data:image/png;base64,${logoBuffer.toString("base64")}`;
 
@@ -40,9 +41,9 @@ export default function OpengraphImage() {
             textAlign: "center",
           }}
         >
-          {siteConfig.name}
+          {settings.name}
         </div>
-        <div style={{ marginTop: 12, fontSize: 28, color: "#1E5EFF" }}>{siteConfig.tagline}</div>
+        <div style={{ marginTop: 12, fontSize: 28, color: "#1E5EFF" }}>{settings.tagline}</div>
       </div>
     ),
     { ...size }

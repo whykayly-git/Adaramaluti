@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import { requireAdminSession } from "@/lib/require-admin";
 import { insertLookbookImage } from "@/lib/db";
 
@@ -14,6 +15,7 @@ export async function POST(request: NextRequest) {
   }
 
   const image = insertLookbookImage(url, typeof alt === "string" && alt.trim() ? alt : "Adaramaluti lookbook editorial");
+  revalidatePath("/", "layout");
 
   return NextResponse.json({ image });
 }

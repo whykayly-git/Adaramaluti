@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import { requireAdminSession } from "@/lib/require-admin";
 import { deleteLookbookImage } from "@/lib/db";
 
@@ -13,6 +14,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
   const { id } = await params;
   deleteLookbookImage(Number(id));
+  revalidatePath("/", "layout");
 
   return NextResponse.json({ ok: true });
 }

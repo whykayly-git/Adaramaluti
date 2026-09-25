@@ -41,8 +41,10 @@ types/                 Shared TypeScript types
 
 ## Editing Brand Details
 
-All brand details (name, tagline, logo path, contact info, social links) live in
-[`lib/site-config.ts`](lib/site-config.ts) — edit that one file to rebrand the site.
+Brand details (name, tagline, logo, contact info, social links) are editable live at
+**`/admin/settings`** — see [Admin Dashboard](#admin-dashboard) below. [`lib/site-config.ts`](lib/site-config.ts)
+only holds the *default* values used until an admin overrides them (and the values used by a
+handful of admin-only, non-live-editable spots like the login page branding).
 
 The logo file is `public/images/logo.png`. The supplied source photo has a textured background,
 so the `Logo` component renders it inside a white rounded badge everywhere it appears, keeping it
@@ -120,13 +122,28 @@ Everything below lives in a local SQLite database (via Node's built-in `node:sql
   images (by URL), stock and featured status. Changes are live on `/shop` immediately.
 - **`/admin/collections`** — add, edit, delete collections shown on `/collections` and the home page.
 - **`/admin/lookbook`** — add or remove images from the `/lookbook` gallery.
+- **`/admin/settings`** — brand details (name, tagline, logo, email, phone, WhatsApp, address,
+  social links — shown in the navbar, footer, home hero, receipts, metadata, etc.), plus the
+  Shipping & Returns, Privacy Policy, Terms of Service and Contact page content.
 - **`/admin/admins`** — manage who has dashboard access (see below).
 
 The product/collection/lookbook data that used to live in static files now lives in the database,
 seeded once on first run from `data/seed-products.ts`, `data/seed-collections.ts` and
 `data/seed-lookbook.ts`. `data/products.ts`, `data/collections.ts` and `data/lookbook.ts` are thin,
 DB-backed accessor functions — the rest of the app (shop, product pages, home, sitemap, etc.)
-reads through those and never touches `lib/db.ts` directly.
+reads through those and never touches `lib/db.ts` directly. Brand settings work the same way via
+`lib/site-settings.ts`, and legal/info page text via `lib/page-content.ts`.
+
+Legal/info page content uses a lightweight markdown-lite convention (`## Heading`, `- bullet`,
+blank lines between blocks), rendered by `<MarkdownLite>` — plain text in, React elements out, no
+`dangerouslySetInnerHTML`.
+
+**Editing something and not seeing it change?** Every admin write calls `revalidatePath("/", "layout")`
+so edits show up immediately even on pages Next.js prerendered at build time — this matters in
+production (`next build && next start`), where pages without dynamic data are statically cached;
+in `next dev` everything re-renders on every request regardless, so this distinction is invisible
+locally. If you add a new admin-editable field somewhere, make sure whatever route writes it also
+revalidates.
 
 ### Admin accounts
 

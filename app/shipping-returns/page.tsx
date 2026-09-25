@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { LegalLayout } from "@/components/legal/LegalLayout";
+import { MarkdownLite } from "@/components/legal/MarkdownLite";
 import { shippingOptions } from "@/lib/shipping";
 import { Price } from "@/components/ui/Price";
+import { getPageContent } from "@/lib/page-content";
 
 export const metadata: Metadata = { title: "Shipping & Returns" };
 
@@ -21,40 +23,7 @@ export default function ShippingReturnsPage() {
         </ul>
       </div>
 
-      <div>
-        <h2>Order Processing</h2>
-        <p>
-          Ready-to-wear pieces are processed within 1-2 business days. Made-to-order and bespoke
-          pieces require additional production time, which will be communicated at the time of
-          order.
-        </p>
-      </div>
-
-      <div>
-        <h2>Returns & Exchanges</h2>
-        <p>
-          Ready-to-wear items may be returned within 7 days of delivery for store credit or
-          exchange, provided the item is unworn, unwashed and in its original packaging with tags
-          attached. Bespoke and made-to-order pieces are final sale, as they are cut and
-          constructed specifically for you.
-        </p>
-      </div>
-
-      <div>
-        <h2>How to Start a Return</h2>
-        <p>
-          Contact our customer service team at hello@adaramaluti.com with your order reference
-          and reason for return. Our team will guide you through the next steps.
-        </p>
-      </div>
-
-      <div>
-        <h2>Customs & Duties (International Orders)</h2>
-        <p>
-          International customers are responsible for any customs duties, taxes or import fees
-          levied by their destination country. These are not included in our shipping rates.
-        </p>
-      </div>
+      <MarkdownLite content={getPageContent("shipping_returns")} />
     </LegalLayout>
   );
 }

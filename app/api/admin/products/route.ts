@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import { requireAdminSession } from "@/lib/require-admin";
 import { productSchema } from "@/lib/validation/product";
 import { getProductBySlugFromDb, insertProduct } from "@/lib/db";
@@ -19,6 +20,7 @@ export async function POST(request: NextRequest) {
   }
 
   const product = insertProduct({ ...parsed.data, salePriceNGN: parsed.data.salePriceNGN ?? undefined });
+  revalidatePath("/", "layout");
 
   return NextResponse.json({ product });
 }

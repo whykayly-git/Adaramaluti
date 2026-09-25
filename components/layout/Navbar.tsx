@@ -14,8 +14,9 @@ import { useWishlistStore } from "@/store/wishlist-store";
 import { useHydrated } from "@/lib/use-hydrated";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/types";
+import type { SiteSettings } from "@/lib/site-settings";
 
-export function Navbar({ products }: { products: Product[] }) {
+export function Navbar({ products, settings }: { products: Product[]; settings: SiteSettings }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const pathname = usePathname();
@@ -30,7 +31,14 @@ export function Navbar({ products }: { products: Product[] }) {
     <>
       <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/95 backdrop-blur">
         <Container className="flex h-16 items-center justify-between gap-4 sm:h-20">
-          <Logo size={40} withWordmark className="sm:[&_span:first-child]:h-12 sm:[&_span:first-child]:w-12" />
+          <Logo
+            size={40}
+            withWordmark
+            className="sm:[&_span:first-child]:h-12 sm:[&_span:first-child]:w-12"
+            src={settings.logo}
+            name={settings.name}
+            shortName={settings.shortName}
+          />
 
           <nav className="hidden items-center gap-8 lg:flex" aria-label="Main">
             {navLinks.map((link) => (
@@ -120,7 +128,13 @@ export function Navbar({ products }: { products: Product[] }) {
           )}
         >
           <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
-            <Logo size={36} href={null} />
+            <Logo
+              size={36}
+              href={null}
+              src={settings.logo}
+              name={settings.name}
+              shortName={settings.shortName}
+            />
             <button type="button" onClick={() => setMobileOpen(false)} aria-label="Close menu">
               <X className="h-5 w-5 text-gray-500" />
             </button>
