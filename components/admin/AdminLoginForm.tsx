@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import { siteConfig } from "@/lib/site-config";
 
 export function AdminLoginForm() {
@@ -75,6 +76,13 @@ export function AdminLoginForm() {
           >
             {submitting ? "Signing in..." : "Sign In"}
           </button>
+
+          <Link
+            href="/admin/forgot-password"
+            className="block text-center text-sm text-gray-500 hover:text-accent"
+          >
+            Forgot password?
+          </Link>
         </form>
       </div>
     </div>

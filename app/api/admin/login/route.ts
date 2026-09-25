@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { ADMIN_COOKIE_NAME, checkAdminPassword, createSessionCookieValue } from "@/lib/admin-auth";
+import { ADMIN_COOKIE_NAME, createSessionCookieValue } from "@/lib/admin-auth";
+import { verifyAdminPassword } from "@/lib/admin-password";
 
 export async function POST(request: NextRequest) {
   const { password } = await request.json();
 
-  if (typeof password !== "string" || !checkAdminPassword(password)) {
+  if (typeof password !== "string" || !verifyAdminPassword(password)) {
     return NextResponse.json({ error: "Incorrect password" }, { status: 401 });
   }
 

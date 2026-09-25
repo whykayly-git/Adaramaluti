@@ -36,12 +36,6 @@ async function sign(payload: string, secret: string): Promise<string> {
   return toBase64Url(signature);
 }
 
-export function checkAdminPassword(password: string): boolean {
-  const expected = process.env.ADMIN_PASSWORD;
-  if (!expected) return false;
-  return password === expected;
-}
-
 export async function createSessionCookieValue(): Promise<string> {
   const expiry = String(Date.now() + SESSION_DURATION_MS);
   const signature = await sign(expiry, getSecret());

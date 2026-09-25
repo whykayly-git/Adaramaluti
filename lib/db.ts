@@ -30,8 +30,31 @@ function getDb(): DatabaseSync {
         created_at TEXT NOT NULL
       )
     `);
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS settings (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL
+      )
+    `);
   }
   return db;
+}
+
+export function getSetting(key: string): string | undefined {
+  const database = getDb();
+  const row = database.prepare("SELECT value FROM settings WHERE key = ?").get(key) as
+    | { value: string }
+    | undefined;
+  return row?.value;
+}
+
+export function setSetting(key: string, value: string): void {
+  const database = getDb();
+  database
+    .prepare(
+      "INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value"
+    )
+    .run(key, value);
 }
 
 export type SubmissionType = "bespoke" | "contact";

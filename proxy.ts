@@ -2,10 +2,12 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { ADMIN_COOKIE_NAME, verifySessionCookieValue } from "@/lib/admin-auth";
 
+const PUBLIC_ADMIN_PATHS = ["/admin/login", "/admin/forgot-password"];
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
+  if (pathname.startsWith("/admin") && !PUBLIC_ADMIN_PATHS.includes(pathname)) {
     const sessionCookie = request.cookies.get(ADMIN_COOKIE_NAME)?.value;
     const isValid = await verifySessionCookieValue(sessionCookie);
     if (!isValid) {

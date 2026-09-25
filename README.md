@@ -115,10 +115,17 @@ Bespoke and contact form submissions are stored in a local SQLite database (via 
 `node:sqlite`, see [`lib/db.ts`](lib/db.ts)) and viewable at **`/admin`**, protected by a
 password-gated session (see [`lib/admin-auth.ts`](lib/admin-auth.ts) and `proxy.ts`).
 
-1. Set `ADMIN_PASSWORD` and `ADMIN_SESSION_SECRET` in `.env.local` (see `.env.example`; generate
-   the secret with `openssl rand -hex 32`).
+1. Set `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET` and `ADMIN_RECOVERY_CODE` in `.env.local` (see
+   `.env.example`; generate the secrets with `openssl rand -hex 32`).
 2. Visit `/admin` — you'll be redirected to `/admin/login` if not signed in.
 3. Submissions appear newest-first, split into Bespoke Requests and Contact Messages.
+
+**Forgot the password?** There's no email service wired up, so recovery works via the
+`ADMIN_RECOVERY_CODE` env var instead: go to `/admin/login` → *Forgot password?*, enter the
+recovery code plus a new password. This calls `/api/admin/reset-password`, which stores a salted
+scrypt hash of the new password in the database (see `lib/admin-password.ts`) — from then on,
+login checks against that hash instead of the `ADMIN_PASSWORD` env var. Keep the recovery code as
+secret as the password itself; anyone with it can take over the admin login.
 
 **Note on hosting**: the SQLite file lives at `.data/app.db` on disk. This works well on a host
 with a persistent filesystem, but resets on every deploy on an ephemeral/serverless host (e.g.
