@@ -1,7 +1,18 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { ADMIN_COOKIE_NAME, verifySessionCookieValue } from "@/lib/admin-auth";
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
+    const sessionCookie = request.cookies.get(ADMIN_COOKIE_NAME)?.value;
+    const isValid = await verifySessionCookieValue(sessionCookie);
+    if (!isValid) {
+      return NextResponse.redirect(new URL("/admin/login", request.url));
+    }
+  }
+
   const response = NextResponse.next();
   const country =
     request.headers.get("x-vercel-ip-country") ??

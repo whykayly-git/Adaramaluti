@@ -23,6 +23,8 @@ export function Navbar() {
   const wishlistCount = useWishlistStore((s) => s.productIds.length);
   const hydrated = useHydrated();
 
+  if (pathname.startsWith("/admin")) return null;
+
   return (
     <>
       <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/95 backdrop-blur">

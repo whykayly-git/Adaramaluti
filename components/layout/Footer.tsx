@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { MapPin, Mail, Phone } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { SocialIcon } from "@/components/ui/SocialIcon";
@@ -11,6 +12,7 @@ import { footerLinks, siteConfig } from "@/lib/site-config";
 const paymentLogos = ["Visa", "Mastercard", "Verve", "Paystack", "Stripe", "Flutterwave"];
 
 export function Footer() {
+  const pathname = usePathname();
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
@@ -20,6 +22,8 @@ export function Footer() {
     setSubmitted(true);
     setEmail("");
   }
+
+  if (pathname.startsWith("/admin")) return null;
 
   return (
     <footer className="bg-primary text-white">

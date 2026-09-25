@@ -61,7 +61,7 @@ fetch to a rates API (e.g. exchangerate.host, Open Exchange Rates) on a schedule
 each request inside a server component and pass the rates down.
 
 Visitors from Nigeria are defaulted to NGN and everyone else to USD, detected via
-`middleware.ts` (using the `x-vercel-ip-country` header on Vercel) — this can be manually
+`proxy.ts` (using the `x-vercel-ip-country` header on Vercel) — this can be manually
 overridden at any time with the currency switcher in the navbar.
 
 ## Payments
@@ -108,6 +108,22 @@ the client redirect alone.
 Replace the `sk_test_...` / `FLWSECK_TEST-...` keys in your environment with their live
 equivalents (`sk_live_...` / `FLWSECK-...`), and create a live-mode Stripe webhook endpoint. No
 code changes are required.
+
+## Admin Dashboard (bespoke & contact submissions)
+
+Bespoke and contact form submissions are stored in a local SQLite database (via Node's built-in
+`node:sqlite`, see [`lib/db.ts`](lib/db.ts)) and viewable at **`/admin`**, protected by a
+password-gated session (see [`lib/admin-auth.ts`](lib/admin-auth.ts) and `proxy.ts`).
+
+1. Set `ADMIN_PASSWORD` and `ADMIN_SESSION_SECRET` in `.env.local` (see `.env.example`; generate
+   the secret with `openssl rand -hex 32`).
+2. Visit `/admin` — you'll be redirected to `/admin/login` if not signed in.
+3. Submissions appear newest-first, split into Bespoke Requests and Contact Messages.
+
+**Note on hosting**: the SQLite file lives at `.data/app.db` on disk. This works well on a host
+with a persistent filesystem, but resets on every deploy on an ephemeral/serverless host (e.g.
+Vercel) and isn't shared across server instances. Swap `lib/db.ts` for a hosted database (Turso,
+Supabase, Postgres) before relying on this in that kind of production deployment.
 
 ## Shipping
 

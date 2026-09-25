@@ -2,18 +2,22 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Minus, Plus, X } from "lucide-react";
 import { useCartStore } from "@/store/cart-store";
 import { Price } from "@/components/ui/Price";
 import { Button } from "@/components/ui/Button";
 
 export function CartDrawer() {
+  const pathname = usePathname();
   const isOpen = useCartStore((s) => s.isOpen);
   const close = useCartStore((s) => s.close);
   const items = useCartStore((s) => s.items);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const removeItem = useCartStore((s) => s.removeItem);
   const subtotalNGN = useCartStore((s) => s.subtotalNGN());
+
+  if (pathname.startsWith("/admin")) return null;
 
   return (
     <div

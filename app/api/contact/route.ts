@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { contactSchema } from "@/lib/validation/contact";
+import { insertSubmission } from "@/lib/db";
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
@@ -10,8 +11,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid submission" }, { status: 400 });
   }
 
-  // In production: forward this to your email service (e.g. Resend, SendGrid).
-  console.log("New contact message:", parsed.data);
+  insertSubmission("contact", parsed.data);
 
   return NextResponse.json({ ok: true });
 }

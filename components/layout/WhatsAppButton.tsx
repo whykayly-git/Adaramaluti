@@ -1,9 +1,15 @@
+"use client";
+
+import { usePathname } from "next/navigation";
 import { siteConfig } from "@/lib/site-config";
 
 export function WhatsAppButton() {
+  const pathname = usePathname();
   const message = encodeURIComponent(
     "Hello Adaramaluti House of Fashion, I'd like to make an enquiry."
   );
+
+  if (pathname.startsWith("/admin")) return null;
 
   return (
     <a
