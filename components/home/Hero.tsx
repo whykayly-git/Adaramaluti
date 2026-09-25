@@ -27,7 +27,7 @@ export function Hero() {
           </h1>
           <p className="mt-5 max-w-md text-gray-600">
             Bespoke gowns, sharply tailored suits and hand-embroidered native wear, crafted in
-            Lagos and shipped worldwide.
+            Ogun State and shipped worldwide.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <Button href="/shop" size="lg">

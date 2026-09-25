@@ -10,7 +10,7 @@ export function AboutTeaser() {
         <div className="relative aspect-[4/5] w-full overflow-hidden rounded-3xl">
           <Image
             src={unsplash("1506629082955-511b1aa562c8", 1000, 1250)}
-            alt="The Adaramaluti design atelier in Lagos"
+            alt="The Adaramaluti design atelier in Ogun State"
             fill
             sizes="(min-width: 1024px) 45vw, 90vw"
             className="object-cover"
@@ -21,7 +21,7 @@ export function AboutTeaser() {
             The Designer
           </p>
           <h2 className="font-bold text-3xl text-primary sm:text-4xl">
-            Rooted in Lagos, worn around the world
+            Rooted in Ogun State, worn around the world
           </h2>
           <p className="mt-4 text-gray-600">
             Every Adaramaluti piece begins in our Ogun State atelier, where a small team of
