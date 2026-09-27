@@ -40,6 +40,9 @@ yarn-error.log*
 # local sqlite database (bespoke/contact form submissions)
 .data
 
+# admin-uploaded images (products, collections, lookbook, logo)
+/public/uploads
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

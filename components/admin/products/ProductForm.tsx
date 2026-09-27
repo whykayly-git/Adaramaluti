@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { MultiImageUploader } from "@/components/admin/MultiImageUploader";
 import { slugify } from "@/lib/slugify";
 import type { Product } from "@/types";
 
@@ -27,7 +28,7 @@ export function ProductForm({ productId, initial, collectionNames }: ProductForm
   const [collection, setCollection] = useState(initial?.collection ?? "");
   const [sizes, setSizes] = useState(initial?.sizes.join(", ") ?? "");
   const [colors, setColors] = useState(initial?.colors.join(", ") ?? "");
-  const [images, setImages] = useState(initial?.images.join("\n") ?? "");
+  const [images, setImages] = useState<string[]>(initial?.images ?? []);
   const [description, setDescription] = useState(initial?.description ?? "");
   const [inStock, setInStock] = useState(initial?.inStock ?? true);
   const [featured, setFeatured] = useState(initial?.featured ?? false);
@@ -43,6 +44,12 @@ export function ProductForm({ productId, initial, collectionNames }: ProductForm
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+
+    if (images.length === 0) {
+      setError("Upload at least one image");
+      return;
+    }
+
     setSubmitting(true);
 
     const payload = {
@@ -60,10 +67,7 @@ export function ProductForm({ productId, initial, collectionNames }: ProductForm
         .split(",")
         .map((c) => c.trim())
         .filter(Boolean),
-      images: images
-        .split("\n")
-        .map((i) => i.trim())
-        .filter(Boolean),
+      images,
       description,
       inStock,
       featured,
@@ -176,14 +180,8 @@ export function ProductForm({ productId, initial, collectionNames }: ProductForm
         </Field>
       </div>
 
-      <Field label="Image URLs (one per line)">
-        <textarea
-          required
-          rows={3}
-          value={images}
-          onChange={(e) => setImages(e.target.value)}
-          className="input resize-none"
-        />
+      <Field label="Images">
+        <MultiImageUploader values={images} onChange={setImages} />
       </Field>
 
       <Field label="Description">

@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
 
   const { url, alt } = await request.json();
 
-  if (typeof url !== "string" || !/^https?:\/\//.test(url)) {
+  if (typeof url !== "string" || !(/^https?:\/\//.test(url) || url.startsWith("/"))) {
     return NextResponse.json({ error: "Enter a valid image URL" }, { status: 400 });
   }
 

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { ImageUploader } from "@/components/admin/ImageUploader";
 import type { SiteSettings } from "@/lib/site-settings";
 
 export function SettingsForm({ initial }: { initial: SiteSettings }) {
@@ -67,9 +68,6 @@ export function SettingsForm({ initial }: { initial: SiteSettings }) {
         <Field label="Tagline">
           <input required value={values.tagline} onChange={(e) => set("tagline", e.target.value)} className="input" />
         </Field>
-        <Field label="Logo path or URL">
-          <input required value={values.logo} onChange={(e) => set("logo", e.target.value)} className="input" />
-        </Field>
         <Field label="Email">
           <input
             required
@@ -94,6 +92,10 @@ export function SettingsForm({ initial }: { initial: SiteSettings }) {
           <input required type="url" value={values.url} onChange={(e) => set("url", e.target.value)} className="input" />
         </Field>
       </div>
+
+      <Field label="Logo">
+        <ImageUploader value={values.logo} onChange={(url) => set("logo", url)} />
+      </Field>
 
       <Field label="Brand Description">
         <textarea

@@ -119,7 +119,7 @@ Everything below lives in a local SQLite database (via Node's built-in `node:sql
 
 - **`/admin`** — Submissions: bespoke requests and contact messages, newest first.
 - **`/admin/products`** — full product management: add, edit, delete, prices, sizes, colors,
-  images (by URL), stock and featured status. Changes are live on `/shop` immediately.
+  images, stock and featured status. Changes are live on `/shop` immediately.
 - **`/admin/collections`** — add, edit, delete collections shown on `/collections` and the home page.
 - **`/admin/lookbook`** — add or remove images from the `/lookbook` gallery.
 - **`/admin/settings`** — brand details (name, tagline, logo, email, phone, WhatsApp, address,
@@ -139,6 +139,17 @@ reads through those and never touches `lib/db.ts` directly. Brand settings work 
 Legal/info page content uses a lightweight markdown-lite convention (`## Heading`, `- bullet`,
 blank lines between blocks), rendered by `<MarkdownLite>` — plain text in, React elements out, no
 `dangerouslySetInnerHTML`.
+
+### Image uploads
+
+Every image field (product photos, collection covers, lookbook images, the logo) is a real file
+upload — pick a photo from your phone's camera/gallery or your computer, no URL-pasting needed
+(`components/admin/ImageUploader.tsx` for a single image, `MultiImageUploader.tsx` for a product's
+multiple images). `POST /api/admin/upload` (session-gated, JPEG/PNG/WEBP/GIF, 8MB max) saves the
+file to `public/uploads/<uuid>.<ext>` and returns that path, which is then submitted like any other
+field. Same hosting caveat as the database: this needs a persistent filesystem — on an ephemeral
+host (Vercel), uploaded files vanish on redeploy, so swap in a hosted object store (S3, Cloudinary,
+Vercel Blob) before relying on this in that kind of production deployment.
 
 **Editing something and not seeing it change?** Every admin write calls `revalidatePath("/", "layout")`
 so edits show up immediately even on pages Next.js prerendered at build time — this matters in

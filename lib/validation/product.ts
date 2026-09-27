@@ -1,5 +1,12 @@
 import { z } from "zod";
 
+const imagePath = z
+  .string()
+  .refine(
+    (v) => /^https?:\/\//.test(v) || v.startsWith("/"),
+    "Enter a valid image URL or upload an image"
+  );
+
 export const productSchema = z.object({
   slug: z
     .string()
@@ -12,7 +19,7 @@ export const productSchema = z.object({
   collection: z.string().min(1, "Collection is required"),
   sizes: z.array(z.string().min(1)).min(1, "At least one size is required"),
   colors: z.array(z.string().min(1)).min(1, "At least one color is required"),
-  images: z.array(z.string().url("Each image must be a valid URL")).min(1, "At least one image is required"),
+  images: z.array(imagePath).min(1, "At least one image is required"),
   description: z.string().min(10, "Description should be at least 10 characters"),
   inStock: z.boolean(),
   featured: z.boolean(),

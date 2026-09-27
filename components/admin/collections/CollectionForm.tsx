@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { ImageUploader } from "@/components/admin/ImageUploader";
 import { slugify } from "@/lib/slugify";
 import type { Collection } from "@/types";
 
@@ -29,6 +30,12 @@ export function CollectionForm({ collectionId, initial }: CollectionFormProps) {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+
+    if (!image) {
+      setError("Upload an image");
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -75,14 +82,8 @@ export function CollectionForm({ collectionId, initial }: CollectionFormProps) {
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-medium text-gray-700">Image URL</label>
-        <input
-          required
-          type="url"
-          value={image}
-          onChange={(e) => setImage(e.target.value)}
-          className="input"
-        />
+        <label className="mb-1 block text-sm font-medium text-gray-700">Image</label>
+        <ImageUploader value={image} onChange={setImage} aspectClassName="aspect-[16/10]" />
       </div>
 
       <div>
