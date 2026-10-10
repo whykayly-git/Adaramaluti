@@ -128,6 +128,7 @@ Everything below lives in a local SQLite database (via Node's built-in `node:sql
   images, stock and featured status. Changes are live on `/shop` immediately.
 - **`/admin/collections`** — add, edit, delete collections shown on `/collections` and the home page.
 - **`/admin/lookbook`** — add or remove images from the `/lookbook` gallery.
+- **`/admin/testimonials`** — add, edit, delete the "Client Love" testimonials shown on the home page.
 - **`/admin/settings`** — brand details (name, tagline, logo, email, phone, WhatsApp, address,
   social links — shown in the navbar, footer, home hero, receipts, metadata, etc.), checkout
   shipping rates (label/description/rate/ETA for the three zones — the zone ids themselves are
@@ -135,10 +136,11 @@ Everything below lives in a local SQLite database (via Node's built-in `node:sql
   Shipping & Returns, Privacy Policy, Terms of Service and Contact page content.
 - **`/admin/admins`** — manage who has dashboard access (see below).
 
-The product/collection/lookbook data that used to live in static files now lives in the database,
-seeded once on first run from `data/seed-products.ts`, `data/seed-collections.ts` and
-`data/seed-lookbook.ts`. `data/products.ts`, `data/collections.ts` and `data/lookbook.ts` are thin,
-DB-backed accessor functions — the rest of the app (shop, product pages, home, sitemap, etc.)
+The product/collection/lookbook/testimonial data that used to live in static files now lives in
+the database, seeded once on first run from `data/seed-products.ts`, `data/seed-collections.ts`,
+`data/seed-lookbook.ts` and `data/seed-testimonials.ts`. `data/products.ts`, `data/collections.ts`,
+`data/lookbook.ts` and `data/testimonials.ts` are thin, DB-backed accessor functions — the rest of
+the app (shop, product pages, home, sitemap, etc.)
 reads through those and never touches `lib/db.ts` directly. Brand settings work the same way via
 `lib/site-settings.ts`, and legal/info page text via `lib/page-content.ts`.
 

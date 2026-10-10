@@ -5,6 +5,7 @@ import path from "path";
 import { seedProducts } from "@/data/seed-products";
 import { seedCollections } from "@/data/seed-collections";
 import { seedLookbookImages } from "@/data/seed-lookbook";
+import { seedTestimonials } from "@/data/seed-testimonials";
 import type { Product, Collection } from "@/types";
 
 /**
@@ -95,6 +96,15 @@ function getDb(): DatabaseSync {
       email TEXT PRIMARY KEY,
       created_at TEXT NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS testimonials (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      location TEXT NOT NULL,
+      quote TEXT NOT NULL,
+      rating INTEGER NOT NULL,
+      sort_order INTEGER NOT NULL,
+      created_at TEXT NOT NULL
+    );
   `);
 
   seedIfEmpty(db);
@@ -156,6 +166,19 @@ function seedIfEmpty(database: DatabaseSync): void {
           "INSERT INTO lookbook_images (url, alt, sort_order, created_at) VALUES (?, ?, ?, ?)"
         )
         .run(image.url, image.alt, index, new Date().toISOString());
+    });
+  }
+
+  const testimonialCount = (
+    database.prepare("SELECT COUNT(*) as count FROM testimonials").get() as { count: number }
+  ).count;
+  if (testimonialCount === 0) {
+    seedTestimonials.forEach((t, index) => {
+      database
+        .prepare(
+          "INSERT INTO testimonials (name, location, quote, rating, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?)"
+        )
+        .run(t.name, t.location, t.quote, t.rating, index, new Date().toISOString());
     });
   }
 }
@@ -597,4 +620,81 @@ export function listNewsletterSubscribers(): NewsletterSubscriber[] {
     .prepare("SELECT * FROM newsletter_subscribers ORDER BY created_at DESC")
     .all() as { email: string; created_at: string }[];
   return rows.map((r) => ({ email: r.email, createdAt: r.created_at }));
+}
+
+// ---------- testimonials ("Client Love") ----------
+
+export interface Testimonial {
+  id: number;
+  name: string;
+  location: string;
+  quote: string;
+  rating: number;
+  sortOrder: number;
+  createdAt: string;
+}
+
+interface TestimonialRow {
+  id: number;
+  name: string;
+  location: string;
+  quote: string;
+  rating: number;
+  sort_order: number;
+  created_at: string;
+}
+
+function rowToTestimonial(row: TestimonialRow): Testimonial {
+  return {
+    id: row.id,
+    name: row.name,
+    location: row.location,
+    quote: row.quote,
+    rating: row.rating,
+    sortOrder: row.sort_order,
+    createdAt: row.created_at,
+  };
+}
+
+export function listTestimonials(): Testimonial[] {
+  const rows = getDb()
+    .prepare("SELECT * FROM testimonials ORDER BY sort_order ASC, id ASC")
+    .all() as unknown as TestimonialRow[];
+  return rows.map(rowToTestimonial);
+}
+
+export function getTestimonialById(id: number): Testimonial | undefined {
+  const row = getDb().prepare("SELECT * FROM testimonials WHERE id = ?").get(id) as
+    | TestimonialRow
+    | undefined;
+  return row ? rowToTestimonial(row) : undefined;
+}
+
+export type TestimonialInput = Omit<Testimonial, "id" | "sortOrder" | "createdAt">;
+
+export function insertTestimonial(input: TestimonialInput): Testimonial {
+  const database = getDb();
+  const maxOrder = (
+    database.prepare("SELECT MAX(sort_order) as maxOrder FROM testimonials").get() as {
+      maxOrder: number | null;
+    }
+  ).maxOrder;
+  const sortOrder = (maxOrder ?? -1) + 1;
+  const createdAt = new Date().toISOString();
+  const result = database
+    .prepare(
+      "INSERT INTO testimonials (name, location, quote, rating, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?)"
+    )
+    .run(input.name, input.location, input.quote, input.rating, sortOrder, createdAt);
+  return { id: Number(result.lastInsertRowid), ...input, sortOrder, createdAt };
+}
+
+export function updateTestimonial(id: number, input: TestimonialInput): void {
+  getDb()
+    .prepare("UPDATE testimonials SET name = ?, location = ?, quote = ?, rating = ? WHERE id = ?")
+    .run(input.name, input.location, input.quote, input.rating, id);
+}
+
+export function deleteTestimonial(id: number): void {
+  getDb().prepare("DELETE FROM testimonials WHERE id = ?").run(id);
 }

@@ -1,29 +1,13 @@
 import { Star } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-
-const testimonials = [
-  {
-    name: "Ngozi A.",
-    location: "Lagos, Nigeria",
-    quote:
-      "My agbada for my introduction ceremony was beyond anything I imagined. The embroidery detail is exquisite and the fit was perfect.",
-  },
-  {
-    name: "Sarah K.",
-    location: "London, UK",
-    quote:
-      "I ordered the silk evening gown for a gala abroad and it arrived beautifully packaged, right on time. The quality rivals any European atelier.",
-  },
-  {
-    name: "Chidi O.",
-    location: "Houston, USA",
-    quote:
-      "The bespoke suit process was seamless from measurements to delivery. Adaramaluti has a customer for life.",
-  },
-];
+import { getAllTestimonials } from "@/data/testimonials";
 
 export function Testimonials() {
+  const testimonials = getAllTestimonials();
+
+  if (testimonials.length === 0) return null;
+
   return (
     <section className="bg-primary py-16 text-white sm:py-24">
       <Container>
@@ -35,9 +19,9 @@ export function Testimonials() {
         />
         <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
           {testimonials.map((t) => (
-            <figure key={t.name} className="rounded-2xl bg-white/10 p-6">
+            <figure key={t.id} className="rounded-2xl bg-white/10 p-6">
               <div className="mb-3 flex gap-1 text-accent">
-                {Array.from({ length: 5 }).map((_, i) => (
+                {Array.from({ length: t.rating }).map((_, i) => (
                   <Star key={i} className="h-4 w-4 fill-current" />
                 ))}
               </div>
