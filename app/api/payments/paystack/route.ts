@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { initializePaystackTransaction, verifyPaystackTransaction } from "@/lib/payments/paystack";
+import { markOrderPaid } from "@/lib/db";
 
 export async function POST(request: NextRequest) {
   try {
@@ -40,6 +41,7 @@ export async function GET(request: NextRequest) {
     }
 
     const { successful, raw } = await verifyPaystackTransaction(reference);
+    if (successful) markOrderPaid(reference);
     return NextResponse.json({ successful, status: raw.status });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Payment verification failed";

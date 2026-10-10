@@ -4,6 +4,7 @@ import {
   initializeFlutterwavePayment,
   verifyFlutterwaveTransaction,
 } from "@/lib/payments/flutterwave";
+import { markOrderPaid } from "@/lib/db";
 
 export async function POST(request: NextRequest) {
   try {
@@ -47,6 +48,7 @@ export async function GET(request: NextRequest) {
     }
 
     const { successful, raw } = await verifyFlutterwaveTransaction(transactionId);
+    if (successful && typeof raw.tx_ref === "string") markOrderPaid(raw.tx_ref);
     return NextResponse.json({ successful, status: raw.status });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Payment verification failed";

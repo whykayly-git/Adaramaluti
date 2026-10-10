@@ -77,22 +77,25 @@ Each provider has its own API route under `app/api/payments/`:
 
 - **`/api/payments/paystack`** — `POST` initializes a transaction and returns an
   `authorization_url` to redirect to; `GET ?reference=` verifies it server-side via Paystack's
-  verify endpoint before the order confirmation page marks the order as paid.
+  verify endpoint, and marks the order paid in the database on success.
 - **`/api/payments/stripe`** — `POST` creates a Stripe Checkout Session; `GET ?session_id=`
-  retrieves it for the confirmation page. `/api/payments/stripe/webhook` verifies the
-  `checkout.session.completed` event via Stripe's signature check — this is the source of truth
-  for marking an order paid in a real deployment.
+  retrieves it for the confirmation page and marks the order paid on success.
+  `/api/payments/stripe/webhook` verifies the `checkout.session.completed` event via Stripe's
+  signature check and does the same — this is the actual source of truth in a real deployment,
+  since it doesn't depend on the customer's browser making it back to the confirmation page.
 - **`/api/payments/flutterwave`** — `POST` initializes a payment and returns a `link` to redirect
-  to; `GET ?transaction_id=` verifies it server-side via Flutterwave's verify endpoint.
+  to; `GET ?transaction_id=` verifies it server-side via Flutterwave's verify endpoint and marks
+  the order paid on success.
 
 All secret keys are read from environment variables server-side only (see `.env.example`) — they
 are never exposed to the browser.
 
-This project has no database, so orders are kept in `sessionStorage` on the client between
-checkout and the confirmation page (see `lib/order.ts`), and payments are verified server-side
-before the receipt is shown. **For a real deployment, replace this with a database**: create the
-order when checkout starts, and mark it paid from the verify/webhook routes instead of trusting
-the client redirect alone.
+**Orders are persisted server-side**, not just in the customer's `sessionStorage`: `POST
+/api/orders` (public, called by `CheckoutClient` right before redirecting to the payment provider)
+writes a `pending` order row, and the verify/webhook routes above flip it to `paid`. This means an
+order survives even if the customer closes the tab before returning, and — unlike trusting the
+client's redirect back to `/order-confirmation` alone — the "paid" status is set by the server
+after checking with the payment provider directly. View them at **`/admin/orders`**.
 
 ### Getting sandbox/test keys
 
@@ -117,7 +120,10 @@ Everything below lives in a local SQLite database (via Node's built-in `node:sql
 [`lib/db.ts`](lib/db.ts)), editable at **`/admin`**, protected by a signed, password-gated session
 (see [`lib/admin-auth.ts`](lib/admin-auth.ts) and `proxy.ts`):
 
-- **`/admin`** — Submissions: bespoke requests and contact messages, newest first.
+- **`/admin`** — Submissions: bespoke requests, contact messages and newsletter subscribers,
+  newest first.
+- **`/admin/orders`** — every order, from `pending` (checkout started) through `paid`; click
+  through for the full order (items, customer, shipping address, payment provider).
 - **`/admin/products`** — full product management: add, edit, delete, prices, sizes, colors,
   images, stock and featured status. Changes are live on `/shop` immediately.
 - **`/admin/collections`** — add, edit, delete collections shown on `/collections` and the home page.
@@ -180,8 +186,8 @@ reset any admin's login.
 The SQLite file lives at `.data/app.db` on disk. This works well on a host with a persistent
 filesystem, but resets on every deploy on an ephemeral/serverless host (e.g. Vercel) and isn't
 shared across server instances. Swap `lib/db.ts` for a hosted database (Turso, Supabase, Postgres)
-before relying on this — submissions, admin accounts, products and collections — in that kind of
-production deployment.
+before relying on this — submissions, orders, admin accounts, products and collections — in that
+kind of production deployment.
 
 ## Shipping
 

@@ -75,6 +75,15 @@ export function CheckoutClient({ shippingOptions }: { shippingOptions: ShippingO
 
     const reference = generateOrderReference();
     const origin = window.location.origin;
+    const customer = {
+      fullName: values.fullName,
+      email: values.email,
+      phone: values.phone,
+      address: values.address,
+      city: values.city,
+      state: values.state,
+      country: values.country,
+    };
 
     savePendingOrder({
       reference,
@@ -84,20 +93,31 @@ export function CheckoutClient({ shippingOptions }: { shippingOptions: ShippingO
       totalNGN,
       currency,
       shippingZone: values.shippingZone,
-      customer: {
-        fullName: values.fullName,
-        email: values.email,
-        phone: values.phone,
-        address: values.address,
-        city: values.city,
-        state: values.state,
-        country: values.country,
-      },
+      customer,
       paymentProvider: values.paymentProvider,
       paidAt: "",
     });
 
     try {
+      // Record the order server-side before redirecting to the payment
+      // provider, so it exists even if the customer never returns (closes
+      // the tab, payment verify fails, etc.) — not just in sessionStorage.
+      await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          reference,
+          items,
+          subtotalNGN,
+          shippingNGN: shipping.rateNGN,
+          totalNGN,
+          currency,
+          shippingZone: values.shippingZone,
+          customer,
+          paymentProvider: values.paymentProvider,
+        }),
+      });
+
       if (values.paymentProvider === "paystack") {
         const res = await fetch("/api/payments/paystack", {
           method: "POST",

@@ -77,6 +77,24 @@ function getDb(): DatabaseSync {
       sort_order INTEGER NOT NULL,
       created_at TEXT NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS orders (
+      reference TEXT PRIMARY KEY,
+      items TEXT NOT NULL,
+      subtotal_ngn INTEGER NOT NULL,
+      shipping_ngn INTEGER NOT NULL,
+      total_ngn INTEGER NOT NULL,
+      currency TEXT NOT NULL,
+      shipping_zone TEXT NOT NULL,
+      customer TEXT NOT NULL,
+      payment_provider TEXT NOT NULL,
+      status TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      paid_at TEXT
+    );
+    CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+      email TEXT PRIMARY KEY,
+      created_at TEXT NOT NULL
+    );
   `);
 
   seedIfEmpty(db);
@@ -446,4 +464,137 @@ export function insertLookbookImage(url: string, alt: string): LookbookImage {
 
 export function deleteLookbookImage(id: number): void {
   getDb().prepare("DELETE FROM lookbook_images WHERE id = ?").run(id);
+}
+
+// ---------- orders ----------
+
+export type OrderStatus = "pending" | "paid" | "failed";
+
+export interface OrderRecord {
+  reference: string;
+  items: unknown[];
+  subtotalNGN: number;
+  shippingNGN: number;
+  totalNGN: number;
+  currency: string;
+  shippingZone: string;
+  customer: Record<string, string>;
+  paymentProvider: string;
+  status: OrderStatus;
+  createdAt: string;
+  paidAt: string | null;
+}
+
+interface OrderRow {
+  reference: string;
+  items: string;
+  subtotal_ngn: number;
+  shipping_ngn: number;
+  total_ngn: number;
+  currency: string;
+  shipping_zone: string;
+  customer: string;
+  payment_provider: string;
+  status: string;
+  created_at: string;
+  paid_at: string | null;
+}
+
+function rowToOrder(row: OrderRow): OrderRecord {
+  return {
+    reference: row.reference,
+    items: JSON.parse(row.items),
+    subtotalNGN: row.subtotal_ngn,
+    shippingNGN: row.shipping_ngn,
+    totalNGN: row.total_ngn,
+    currency: row.currency,
+    shippingZone: row.shipping_zone,
+    customer: JSON.parse(row.customer),
+    paymentProvider: row.payment_provider,
+    status: row.status as OrderStatus,
+    createdAt: row.created_at,
+    paidAt: row.paid_at,
+  };
+}
+
+export interface OrderInput {
+  reference: string;
+  items: unknown[];
+  subtotalNGN: number;
+  shippingNGN: number;
+  totalNGN: number;
+  currency: string;
+  shippingZone: string;
+  customer: Record<string, string>;
+  paymentProvider: string;
+}
+
+export function insertPendingOrder(input: OrderInput): void {
+  getDb()
+    .prepare(
+      `INSERT INTO orders
+        (reference, items, subtotal_ngn, shipping_ngn, total_ngn, currency, shipping_zone, customer, payment_provider, status, created_at, paid_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, NULL)
+       ON CONFLICT(reference) DO NOTHING`
+    )
+    .run(
+      input.reference,
+      JSON.stringify(input.items),
+      input.subtotalNGN,
+      input.shippingNGN,
+      input.totalNGN,
+      input.currency,
+      input.shippingZone,
+      JSON.stringify(input.customer),
+      input.paymentProvider,
+      new Date().toISOString()
+    );
+}
+
+export function markOrderPaid(reference: string): void {
+  getDb()
+    .prepare("UPDATE orders SET status = 'paid', paid_at = ? WHERE reference = ?")
+    .run(new Date().toISOString(), reference);
+}
+
+export function markOrderFailed(reference: string): void {
+  getDb()
+    .prepare("UPDATE orders SET status = 'failed' WHERE reference = ? AND status = 'pending'")
+    .run(reference);
+}
+
+export function getOrderByReference(reference: string): OrderRecord | undefined {
+  const row = getDb().prepare("SELECT * FROM orders WHERE reference = ?").get(reference) as
+    | OrderRow
+    | undefined;
+  return row ? rowToOrder(row) : undefined;
+}
+
+export function listOrders(): OrderRecord[] {
+  const rows = getDb()
+    .prepare("SELECT * FROM orders ORDER BY created_at DESC")
+    .all() as unknown as OrderRow[];
+  return rows.map(rowToOrder);
+}
+
+// ---------- newsletter subscribers ----------
+
+export interface NewsletterSubscriber {
+  email: string;
+  createdAt: string;
+}
+
+export function insertNewsletterSubscriber(email: string): void {
+  getDb()
+    .prepare(
+      "INSERT INTO newsletter_subscribers (email, created_at) VALUES (?, ?) ON CONFLICT(email) DO NOTHING"
+    )
+    .run(email.toLowerCase(), new Date().toISOString());
+}
+
+export function listNewsletterSubscribers(): NewsletterSubscriber[] {
+  const rows = getDb()
+    .prepare("SELECT * FROM newsletter_subscribers ORDER BY created_at DESC")
+    .all() as { email: string; created_at: string }[];
+  return rows.map((r) => ({ email: r.email, createdAt: r.created_at }));
 }

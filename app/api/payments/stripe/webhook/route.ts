@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getStripeClient } from "@/lib/payments/stripe";
+import { markOrderPaid } from "@/lib/db";
 
 /**
  * Stripe requires the raw request body to verify the webhook signature,
@@ -27,10 +28,12 @@ export async function POST(request: NextRequest) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
-    // In production: look up the order by session.client_reference_id / metadata.reference
-    // and mark it as paid in your database, then trigger fulfillment (e.g. send a
-    // confirmation email). This project has no database, so we just log it.
-    console.log("Stripe payment confirmed for reference:", session.metadata?.reference);
+    const reference = session.metadata?.reference ?? session.client_reference_id;
+    if (reference) {
+      markOrderPaid(reference);
+    } else {
+      console.warn("Stripe checkout.session.completed with no order reference", session.id);
+    }
   }
 
   return NextResponse.json({ received: true });

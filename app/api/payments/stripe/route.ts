@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getStripeClient } from "@/lib/payments/stripe";
+import { markOrderPaid } from "@/lib/db";
 
 export async function POST(request: NextRequest) {
   try {
@@ -58,9 +59,13 @@ export async function GET(request: NextRequest) {
 
     const stripe = getStripeClient();
     const session = await stripe.checkout.sessions.retrieve(sessionId);
+    const successful = session.payment_status === "paid";
+
+    const reference = session.metadata?.reference ?? session.client_reference_id;
+    if (successful && reference) markOrderPaid(reference);
 
     return NextResponse.json({
-      successful: session.payment_status === "paid",
+      successful,
       status: session.payment_status,
     });
   } catch (error) {
